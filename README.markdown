@@ -46,6 +46,7 @@ Use
 $ gist < file.txt
 $ echo secret | gist --private # or -p
 $ echo "puts :hi" | gist -t rb
+$ echo "puts :hello" | gist -n hello.rb
 $ gist script.py
 $ gist script.js notes.txt
 $ pbpaste | gist -p # Copy from clipboard - OSX Only

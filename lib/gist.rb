@@ -60,6 +60,10 @@ module Gist
         gist_extension = '.' + extension
       end
 
+      opts.on('-n', '--name [FILENAME]', t_desc) do |filename|
+        gist_filename = filename
+      end
+
       opts.on('-d','--description DESCRIPTION', 'Set description of the new gist') do |d|
         description = d
       end
@@ -110,7 +114,13 @@ module Gist
       else
         # Read from standard input.
         input = $stdin.read
-        files = [{:input => input, :extension => gist_extension}]
+        file = {:input => input}
+        if gist_filename
+          file[:filename] = gist_filename
+        else
+          file[:extension] = gist_extension
+        end
+        files = [file]
       end
 
       url = write(files, private_gist, description)
@@ -196,11 +206,19 @@ private
   # Give an array of file information and private boolean, returns
   # an appropriate payload for POSTing to gist.github.com
   def data(files, private_gist, description)
-    i = 0
     file_data = {}
-    files.each do |file|
-      i = i + 1
-      filename = file[:filename] ? file[:filename] : "gistfile#{i}"
+    files.each_with_index do |file, index|
+      if file[:filename]
+        filename = file[:filename]
+      else
+        filename = "gistfile"
+        if files.length > 1
+          filename << "-#{index+1}"
+        end
+        if file[:extension]
+          filename << file[:extension]
+        end
+      end
       file_data[filename] = {:content => file[:input]}
     end
 
